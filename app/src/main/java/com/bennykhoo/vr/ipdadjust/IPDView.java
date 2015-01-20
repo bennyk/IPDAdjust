@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -14,7 +15,7 @@ import android.view.View;
 public class IPDView extends View {
 
     public static final int TICK = 10;
-    private Integer _dx = 0, _dy = 0;
+    private int _dx = 0, _dy = 0;
 
     public IPDView(Context context) {
         super(context);
@@ -28,8 +29,13 @@ public class IPDView extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    public Integer getOffset() {
+    public int getOffset() {
         return getWidth() / 2 + _dx;
+    }
+
+    public void setOffset(int offset) {
+        _dx = offset - getWidth() / 2;
+        invalidate();
     }
 
     public void adjustLeft() {
@@ -45,8 +51,8 @@ public class IPDView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Integer x = getWidth() / 2 + _dx;
-        Integer y = getHeight() / 2 + _dy;
+        int x = getWidth() / 2 + _dx;
+        int y = getHeight() / 2 + _dy;
         int radius;
 
         radius = 100;

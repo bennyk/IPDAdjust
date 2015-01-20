@@ -95,13 +95,18 @@ public class IPDAdjustActivity extends Activity {
             saveSettings();
         }
 
+        public void setOffsetFromCenter(int offset) {
+            _rightView.setOffset(offset);
+            _leftView.setOffset(_leftView.getWidth() - offset);
+        }
+
         private File getIPDConfigFile() {
-//                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+//            File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
             File path = Environment.getExternalStorageDirectory();
             path.mkdirs();
             File file = new File(path, "ipd.conf");
 
-//                File file = File.createTempFile("ipd", ".conf");
+//            File file = File.createTempFile("ipd", ".conf");
             return file;
         }
 
@@ -109,13 +114,13 @@ public class IPDAdjustActivity extends Activity {
 
             // convert IPD raw px to mm
             DisplayMetrics metrics = getResources().getDisplayMetrics();
-            float ipdMM = _rightView.getOffset() / metrics.xdpi * 25.4f * 2; // * 2 for both side
+            double ipdMM = _rightView.getOffset() / metrics.xdpi * 25.4f * 2; // * 2 for both side
 
             _rightView.getOffset();
             try {
                 JSONObject json = new JSONObject();
                 json.put("ipdMM", ipdMM);
-                Log.d(TAG, "saving IPD (mm) " + ipdMM);
+                Log.d(TAG, "saving IPD " + ipdMM + " mm " + _rightView.getOffset() + "px");
 
                 File file = getIPDConfigFile();
                 Log.d(TAG, "saving to " + file);
@@ -133,19 +138,27 @@ public class IPDAdjustActivity extends Activity {
                 e.printStackTrace();
             }
 
-//            parseSettings();
         }
 
-        private void parseSettings() {
+        public void parseSettings() {
 
             String data = null;
-            try {
-                data = getStringFromFile(getIPDConfigFile());
-                JSONObject json = new JSONObject(data);
-                Double ipdMM = json.getDouble("ipdMM");
-                Log.d(TAG, "parsed ipdMM: " + ipdMM);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (getIPDConfigFile().exists()) {
+                try {
+                    data = getStringFromFile(getIPDConfigFile());
+                    JSONObject json = new JSONObject(data);
+                    Double ipdMM = json.getDouble("ipdMM");
+
+                    DisplayMetrics metrics = getResources().getDisplayMetrics();
+                    int ipdPX = (int) Math.round(ipdMM * metrics.xdpi / (25.4f * 2)); // * 2 for both side
+
+                    Log.d(TAG, "parsed IPD values: " + ipdMM + " mm " + ipdPX + "px");
+
+                    setOffsetFromCenter(ipdPX);
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -261,5 +274,13 @@ public class IPDAdjustActivity extends Activity {
 
             }
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+
+        // restore from setting file when views are stable and sized properly.
+        _groupedIPDView.parseSettings();
     }
 }
