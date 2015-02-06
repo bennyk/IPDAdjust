@@ -45,6 +45,8 @@ public class IPDAdjustActivity extends Activity {
     private static final String TAG = "IPDAdjustActivity";
     private static final int KEY_UP = 19;
     private static final int KEY_DOWN = 20;
+    private static final int VOLUME_UP = 24;
+    private static final int VOLUME_DOWN = 25;
 
     /**
      * The instance of the {@link SystemUiHider} for this activity.
@@ -81,14 +83,14 @@ public class IPDAdjustActivity extends Activity {
             _rightView = rightView;
         }
 
-        public void adjustLeft() {
+        public void adjustApart() {
             _leftView.adjustLeft();
             _rightView.adjustRight();
 
             saveSettings();
         }
 
-        public void adjustRight() {
+        public void adjustCloser() {
             _leftView.adjustRight();
             _rightView.adjustLeft();
 
@@ -184,10 +186,10 @@ public class IPDAdjustActivity extends Activity {
             } else {
                 if (event2.getX() > event1.getX()) {
                     Log.d(TAG, "fling to right");
-                    _ipdView.adjustRight();
+                    _ipdView.adjustCloser();
                 } else {
                     Log.d(TAG, "fling to left");
-                    _ipdView.adjustLeft();
+                    _ipdView.adjustApart();
                 }
 
             }
@@ -259,21 +261,27 @@ public class IPDAdjustActivity extends Activity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
+        boolean flag = true;
+
 //        Log.d(TAG, "keyDown " + keyCode);
-            switch (keyCode) {
-                case KEY_DOWN:
-                    _groupedIPDView.adjustLeft();
-                    break;
-                case KEY_UP:
-                    _groupedIPDView.adjustRight();
-                    break;
+        switch (keyCode) {
+            case VOLUME_UP:
+            case KEY_DOWN:
+                _groupedIPDView.adjustApart();
+                break;
 
-                    default:
-                        Vibrator v = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
-                        v.vibrate(50);
+            case VOLUME_DOWN:
+            case KEY_UP:
+                _groupedIPDView.adjustCloser();
+                break;
 
-            }
-        return super.onKeyDown(keyCode, event);
+            default:
+                flag = false;
+                Vibrator v = (Vibrator) getSystemService(getApplicationContext().VIBRATOR_SERVICE);
+                v.vibrate(50);
+
+        }
+        return flag;
     }
 
     @Override
