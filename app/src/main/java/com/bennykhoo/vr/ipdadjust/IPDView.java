@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -13,6 +14,8 @@ import android.view.View;
  */
 
 public class IPDView extends View {
+
+    private static final String TAG = "IPDView";
 
     protected enum Corner {
         TL(1),
@@ -26,7 +29,7 @@ public class IPDView extends View {
         final int nativeInt;
     }
 
-    public static final int TICK = 10;
+    public static final int TICK = 2;
     private int _dx = 0, _dy = 0;
 
     public IPDView(Context context) {
@@ -62,6 +65,7 @@ public class IPDView extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
+        Log.d(TAG, "using dx = " + _dx);
         final int ALIGN_MARKER_LEN = 30;
         final int ALIGN_OFFSET = 30;
 
